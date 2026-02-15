@@ -1,0 +1,134 @@
+# --- ZSH CONFIGURATION ---
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
+
+# 1. Historial
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt APPEND_HISTORY
+setopt SHARE_HISTORY
+
+# 2. Plugins (Autosuggestions & Syntax Highlighting)
+source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# 3. Tema Powerlevel10k (Reemplaza el prompt simple anterior)
+source ~/powerlevel10k/powerlevel10k.zsh-theme
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# --- SUPERPOWERS (Traídos de tu configuración anterior) ---
+if command -v bat &> /dev/null; then alias cat='bat --paging=never'; fi
+if [ -f /usr/share/fzf/shell/key-bindings.zsh ]; then source /usr/share/fzf/shell/key-bindings.zsh; fi
+if [ -f /usr/share/fzf/shell/completion.zsh ]; then source /usr/share/fzf/shell/completion.zsh; fi
+export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*"'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+# --- FLUTTER & FVM ---
+export PATH="$HOME/fvm/default/bin:$PATH"
+export PATH="$HOME/fvm/bin:$PATH"
+export CHROME_EXECUTABLE="/usr/bin/flatpak run com.brave.Browser"
+
+# --- MINICONDA ---
+__conda_setup="$('/home/jjulianleon/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then eval "$__conda_setup"; else . "/home/jjulianleon/miniconda3/etc/profile.d/conda.sh"; fi
+unset __conda_setup
+
+# --- PATHS ---
+export PATH="$HOME/.local/bin:$HOME/bin:$HOME/.npm-global/bin:/usr/local/mysql/bin:$PATH"
+
+# --- COMANDOS CUSTOM ---
+function ipconfig() {
+    echo -e "\e[1;34mConfiguración de Red (IP Config)\e[0m"
+    echo "----------------------------------------------------"
+    ip -brief addr show | awk '$1 != "lo"' | while read -r line; do
+        [[ -z $(echo "$line" | awk '{print $3}') ]] && continue
+        
+        local interface=$(echo "$line" | awk '{print $1}')
+        local status=$(echo "$line" | awk '{print $2}')
+        local ips=$(echo "$line" | awk '{for(i=3;i<=NF;i++) printf "%s ", $i}')
+        
+        printf "\e[1m%-15s\e[0m [\e[32m%s\e[0m]\n" "$interface" "$status"
+        for ip in $ips; do
+            if [[ "$ip" =~ ":" ]]; then
+                echo "  IPv6: $ip"
+            else
+                echo "  IPv4: $ip"
+            fi
+        done
+        echo ""
+    done
+}
+function pokemon() {
+    local POKES=("pikachu" "charizard-mega-x" "bulbasaur" "venusaur" "wartortle" "blastoise" "mew" "mewtwo" "ho-oh" "dragonite" "hawlucha" "oricorio" "rayquaza" "charmander" "sylveon")
+    local SELECTED=${POKES[$(( RANDOM % ${#POKES[@]} + 1 ))]}
+    if [[ "$SELECTED" == "charizard-mega-x" ]]; then pokemon-colorscripts -n charizard -f mega-x --no-title | sed "s/^/ /"; else pokemon-colorscripts -n "$SELECTED" --no-title | sed "s/^/ /"; fi
+}
+function sysinfo() { fastfetch --config ~/.config/fastfetch/config.jsonc; }
+
+# --- KDE ACTIVITY AUTO-CD & SYNC (PERSISTENTE) ---
+function auto_cd_activity() {
+    if [[ -n "$KDE_FULL_SESSION" && -o interactive ]]; then
+        local QDBUS_CMD=""
+        if command -v qdbus-qt6 &> /dev/null; then QDBUS_CMD="qdbus-qt6";
+        elif command -v qdbus &> /dev/null; then QDBUS_CMD="qdbus"; fi
+
+        if [[ -n "$QDBUS_CMD" ]]; then
+            # 1. Obtener actividad actual
+            local CURRENT_ACT=$($QDBUS_CMD org.kde.ActivityManager /ActivityManager/Activities CurrentActivity 2>/dev/null)
+            
+            # 2. Leer actividad anterior del archivo (Memoria persistente)
+            local LAST_ACT_FILE="$HOME/.cache/last_kde_activity"
+            local LAST_ACT=""
+            if [ -f "$LAST_ACT_FILE" ]; then LAST_ACT=$(cat "$LAST_ACT_FILE"); fi
+
+            # 3. Definir mapa de carpetas
+            local NEW_DIR=""
+            case "$CURRENT_ACT" in
+                "72143208-8073-46b8-bbad-233ca3449c40") NEW_DIR="/home/jjulianleon/University/8vo Semestre/Bases de Datos/" ;;
+                "2c777a7f-8f6b-4787-b822-83bdb142a1ba") NEW_DIR="/home/jjulianleon/Coding/" ;;
+                "29bf284a-a547-49e2-9c4d-7a12662293f9") NEW_DIR="/home/jjulianleon/University/8vo Semestre/Data Mining/" ;;
+                "d21ecdcf-53e8-413e-a110-78a838bb9e16") NEW_DIR="/home/jjulianleon/IT/" ;;
+                "e8289491-d779-46be-9e03-ed175a1afae9") NEW_DIR="/home/jjulianleon/University/8vo Semestre/Mercados Internacionales/" ;;
+                "da320f76-bed7-4073-b914-580c2ff589ff") NEW_DIR="/home/jjulianleon/University/8vo Semestre/PASEC/" ;;
+                "cc400dd4-266d-4ebf-a6fb-4d36b8ef62ab") NEW_DIR="/home/jjulianleon/University/8vo Semestre/Redes/" ;;
+                "92a41c43-9272-4d30-88b6-f6eeb3bbde43") NEW_DIR="/home/jjulianleon/" ;;
+                *) ;;
+            esac
+
+            # 4. Detectar cambio y sincronizar ANTERIOR
+            if [[ -n "$LAST_ACT" && "$LAST_ACT" != "$CURRENT_ACT" ]]; then
+                # Necesitamos saber qué carpeta era la anterior para sincronizarla
+                local PREV_SUBJECT=""
+                case "$LAST_ACT" in
+                    "72143208-8073-46b8-bbad-233ca3449c40") PREV_SUBJECT="Bases de Datos" ;;
+                    "29bf284a-a547-49e2-9c4d-7a12662293f9") PREV_SUBJECT="Data Mining" ;;
+                    "e8289491-d779-46be-9e03-ed175a1afae9") PREV_SUBJECT="Mercados Internacionales" ;;
+                    "da320f76-bed7-4073-b914-580c2ff589ff") PREV_SUBJECT="PASEC" ;;
+                    "cc400dd4-266d-4ebf-a6fb-4d36b8ef62ab") PREV_SUBJECT="Redes" ;;
+                esac
+
+                if [[ -n "$PREV_SUBJECT" ]]; then
+                    # Ejecutar sync en background
+                    /home/jjulianleon/.local/bin/sync_notebooklm sync-subject "$PREV_SUBJECT" &!
+                fi
+            fi
+
+            # 5. Guardar estado actual y movernos
+            echo "$CURRENT_ACT" > "$LAST_ACT_FILE"
+            if [[ -n "$NEW_DIR" ]]; then cd "$NEW_DIR"; fi
+        fi
+    fi
+}
+auto_cd_activity
+
+# --- VSCODE SHELL INTEGRATION ---
+[[ "$TERM_PROGRAM" == "vscode" ]] && (( $+commands[code] )) && . "$(code --locate-shell-integration-path zsh)"export PATH="$(npm prefix -g)/bin:$PATH"
+alias codex-desktop="~/Coding/codex-desktop-linux/codex-app/start.sh"
