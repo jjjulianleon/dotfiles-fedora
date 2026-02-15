@@ -1,0 +1,8 @@
+# Apps para instalar en la PC Antigua
+- Vivaldi (Browser)
+- Zoom (Comunicación)
+- Neovim (Editor)
+- GitHub CLI (gh)
+- Fastfetch (Sistema)
+- Zsh + Powerlevel10k (Terminal)
+- JetBrainsMono Nerd Font (Iconos)

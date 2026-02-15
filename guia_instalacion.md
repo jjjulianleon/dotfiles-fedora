@@ -1,77 +1,43 @@
-# 🚀 Guía de Instalación - Dotfiles Fedora a Mint
+# 🚀 Instalación Limpia - Entorno Minimalista
 
-Este repositorio contiene la configuración optimizada de mi entorno de trabajo. Sigue estos pasos para replicarlo en Linux Mint (XFCE/Cinnamon).
+Instrucciones para replicar mi entorno esencial en Linux Mint.
 
-## 1. Preparación del Sistema
-Actualiza los repositorios e instala las herramientas base:
+## 1. Base y Herramientas CLI
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y git curl zsh fastfetch neovim build-essential
+sudo apt install -y git curl zsh fastfetch neovim gh
 ```
 
-## 2. Configuración de la Terminal (Zsh + P10K)
-Instala Oh My Zsh y el tema Powerlevel10k:
+## 2. Navegador Vivaldi
 ```bash
-# Oh My Zsh
+wget -qO- https://repo.vivaldi.com/archive/linux_signing_key.pub | gpg --dearmor | sudo dd of=/usr/share/keyrings/vivaldi-browser.gpg
+echo "deb [signed-by=/usr/share/keyrings/vivaldi-browser.gpg arch=$(dpkg --print-architecture)] https://repo.vivaldi.com/archive/deb/ stable main" | sudo tee /etc/apt/sources.list.d/vivaldi-archive.list
+sudo apt update && sudo apt install vivaldi-stable
+```
+
+## 3. Zoom
+Descarga el `.deb` oficial de [zoom.us/download](https://zoom.us/download?os=linux) e instálalo:
+```bash
+sudo apt install ./zoom_amd64.deb
+```
+
+## 4. Terminal Estética (Zsh + P10K)
+```bash
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-# Powerlevel10k
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-```
 
-Luego, aplica mis configuraciones:
-```bash
+# Aplicar configs
 cp ~/dotfiles/zsh/dot-zshrc ~/.zshrc
 cp ~/dotfiles/zsh/dot-p10k.zsh ~/.p10k.zsh
-```
-
-## 3. Configuración de Neovim
-Copia la configuración de Neovim y asegúrate de tener las dependencias para plugins:
-```bash
-mkdir -p ~/.config/nvim
-cp -r ~/dotfiles/config/nvim/* ~/.config/nvim/
-```
-
-## 4. Estética (Fastfetch + Pokemon)
-Para que el fastfetch se vea igual que en Fedora:
-```bash
-mkdir -p ~/.config/fastfetch
-cp -r ~/dotfiles/config/fastfetch/* ~/.config/fastfetch/
-
-# Instalar Pokemon Colorscripts (si quieres los logos)
-git clone https://github.com/phitux/pokemon-colorscripts.git
-cd pokemon-colorscripts && sudo ./install.sh
-```
-
-## 5. Scripts y Configuración de Git
-Copia tus scripts y tu configuración de Git para mantener tu identidad:
-```bash
-# Scripts
-mkdir -p ~/scripts
-cp ~/dotfiles/scripts/* ~/scripts/
-chmod +x ~/scripts/*.sh
-
-# Git
 cp ~/dotfiles/git-config ~/.gitconfig
 ```
 
-## 6. Herramientas Modernas (CLI de alto rendimiento)
-Instala estas alternativas ligeras para mejorar la experiencia en la terminal:
+## 5. Neovim y Fastfetch
 ```bash
-sudo apt install -y bat btop
-# Nota: en Ubuntu/Mint, 'bat' se instala como 'batcat'
-# Crea un alias: alias cat='batcat'
-
-# Para eza y zoxide (recomendado descargar binarios o usar cargo/npx si no están en apt)
-sudo apt install -y eza zoxide
+mkdir -p ~/.config/nvim ~/.config/fastfetch
+cp -r ~/dotfiles/config/nvim/* ~/.config/nvim/
+cp -r ~/dotfiles/config/fastfetch/* ~/.config/fastfetch/
 ```
 
-## 7. Paso Crucial: Nerd Fonts
-Para que los iconos de Neovim y P10k funcionen, DEBES instalar una Nerd Font en el sistema operativo:
-1. Descarga [JetBrainsMono Nerd Font](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip).
-2. Descomprime en `~/.local/share/fonts`.
-3. Ejecuta `fc-cache -fv`.
-4. En la configuración de la terminal (XFCE Terminal/Cinnamon), selecciona "JetBrainsMono Nerd Font" como fuente.
-
----
-*Nota: Recuerda cambiar tu shell por defecto a zsh ejecutando `chsh -s $(which zsh)`.*
+## 6. Nerd Fonts (OBLIGATORIO)
+Instala **JetBrainsMono Nerd Font** para ver los iconos correctamente.
