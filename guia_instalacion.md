@@ -43,13 +43,35 @@ git clone https://github.com/phitux/pokemon-colorscripts.git
 cd pokemon-colorscripts && sudo ./install.sh
 ```
 
-## 5. Scripts Personales
-Dar permisos de ejecución a los scripts útiles:
+## 5. Scripts y Configuración de Git
+Copia tus scripts y tu configuración de Git para mantener tu identidad:
 ```bash
+# Scripts
 mkdir -p ~/scripts
 cp ~/dotfiles/scripts/* ~/scripts/
 chmod +x ~/scripts/*.sh
+
+# Git
+cp ~/dotfiles/git-config ~/.gitconfig
 ```
+
+## 6. Herramientas Modernas (CLI de alto rendimiento)
+Instala estas alternativas ligeras para mejorar la experiencia en la terminal:
+```bash
+sudo apt install -y bat btop
+# Nota: en Ubuntu/Mint, 'bat' se instala como 'batcat'
+# Crea un alias: alias cat='batcat'
+
+# Para eza y zoxide (recomendado descargar binarios o usar cargo/npx si no están en apt)
+sudo apt install -y eza zoxide
+```
+
+## 7. Paso Crucial: Nerd Fonts
+Para que los iconos de Neovim y P10k funcionen, DEBES instalar una Nerd Font en el sistema operativo:
+1. Descarga [JetBrainsMono Nerd Font](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip).
+2. Descomprime en `~/.local/share/fonts`.
+3. Ejecuta `fc-cache -fv`.
+4. En la configuración de la terminal (XFCE Terminal/Cinnamon), selecciona "JetBrainsMono Nerd Font" como fuente.
 
 ---
 *Nota: Recuerda cambiar tu shell por defecto a zsh ejecutando `chsh -s $(which zsh)`.*
